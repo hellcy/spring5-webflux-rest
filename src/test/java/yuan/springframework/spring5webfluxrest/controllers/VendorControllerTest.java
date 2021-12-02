@@ -2,6 +2,7 @@ package yuan.springframework.spring5webfluxrest.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.reactivestreams.Publisher;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 class VendorControllerTest {
   @Mock
@@ -78,5 +80,21 @@ class VendorControllerTest {
             .exchange()
             .expectStatus()
             .isOk();
+  }
+
+  @Test
+  void testPatchVendorWithChanges() {
+    given(vendorRepository.findById(anyString())).willReturn(Mono.just(vendor1));
+    ArgumentCaptor<Vendor> argumentCaptor = ArgumentCaptor.forClass(Vendor.class);
+
+    webTestClient.patch().uri(VendorController.BASE_URL + "/someid")
+            .body(Mono.just(vendor2), Vendor.class)
+            .exchange()
+            .expectStatus()
+            .isOk();
+
+    verify(vendorRepository).save(argumentCaptor.capture());
+
+    assertEquals(vendor2.getFirstname(), argumentCaptor.getValue().getFirstname());
   }
 }
