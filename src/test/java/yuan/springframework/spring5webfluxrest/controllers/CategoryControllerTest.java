@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,6 +12,7 @@ import yuan.springframework.spring5webfluxrest.domain.Category;
 import yuan.springframework.spring5webfluxrest.repositories.CategoryRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static reactor.core.publisher.Mono.when;
@@ -61,5 +63,16 @@ class CategoryControllerTest {
     webTestClient.get().uri(CategoryController.BASE_URL + "/someid")
             .exchange()
             .expectBody(Category.class);
+  }
+
+  @Test
+  void testCreateCategory() {
+    given(categoryRepository.saveAll(any(Publisher.class))).willReturn(Flux.just(category1));
+
+    webTestClient.post().uri(CategoryController.BASE_URL + "/")
+            .body(Mono.just(category1), Category.class)
+            .exchange()
+            .expectStatus()
+            .isCreated();
   }
 }
