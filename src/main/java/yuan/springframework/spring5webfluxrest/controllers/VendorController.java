@@ -1,5 +1,6 @@
 package yuan.springframework.spring5webfluxrest.controllers;
 
+import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -27,5 +28,11 @@ public class VendorController {
   @ResponseStatus(HttpStatus.OK)
   public Mono<Vendor> getVendorById(@PathVariable String id) {
     return vendorRepository.findById(id);
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Mono<Void> createVendor(@RequestBody Publisher<Vendor> vendorStream) {
+    return vendorRepository.saveAll(vendorStream).then();
   }
 }

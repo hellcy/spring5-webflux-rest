@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,6 +12,7 @@ import yuan.springframework.spring5webfluxrest.domain.Vendor;
 import yuan.springframework.spring5webfluxrest.repositories.VendorRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -54,5 +56,16 @@ class VendorControllerTest {
     webTestClient.get().uri(VendorController.BASE_URL + "/someid")
             .exchange()
             .expectBody(Vendor.class);
+  }
+
+  @Test
+  void testCreateVendor() {
+    given(vendorRepository.saveAll(any(Publisher.class))).willReturn(Flux.just(vendor1));
+
+    webTestClient.post().uri(VendorController.BASE_URL)
+            .body(Mono.just(vendor1), Vendor.class)
+            .exchange()
+            .expectStatus()
+            .isCreated();
   }
 }
