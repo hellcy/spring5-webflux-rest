@@ -68,4 +68,15 @@ class VendorControllerTest {
             .expectStatus()
             .isCreated();
   }
+
+  @Test
+  void testUpdateVendor() {
+    given(vendorRepository.save(any(Vendor.class))).willReturn(Mono.just(vendor1));
+
+    webTestClient.put().uri(VendorController.BASE_URL + "/someid")
+            .body(Mono.just(vendor1), Vendor.class)
+            .exchange()
+            .expectStatus()
+            .isOk();
+  }
 }
